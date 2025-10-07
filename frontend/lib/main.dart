@@ -114,28 +114,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // void _createRoom() {
-  //   if (_nameController.text.isNotEmpty) {
-  //     // 1. Comentamos la línea original que se conecta al servidor
-  //     // _socket.emit('createRoom', _nameController.text);
-
-  //     // 2. AÑADIMOS NAVEGACIÓN DE PRUEBA:
-  //     // Cambia 'IMPOSTOR' por 'MESSI' para probar la otra vista
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => RoleRevealPage(role: 'IMPOSTOR'),
-  //       ),
-  //     );
-
-  //   } else {
-  //     // El mensaje de error si el nombre está vacío se queda igual
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('Por favor, introduce tu nombre')),
-  //     );
-  //   }
-  // }
-
   void _joinRoom() {
     if (_nameController.text.isNotEmpty && _roomCodeController.text.isNotEmpty) {
       _socket.emit('joinRoom', {

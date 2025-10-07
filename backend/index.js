@@ -16,14 +16,6 @@ console.log(`✅ ${soccerPlayers.length} futbolistas cargados.`);
 
 let rooms = {};
 
-// // ===== NUEVA LISTA DE FUTBOLISTAS =====
-// // Puedes añadir todos los nombres que quieras aquí
-// const soccerPlayers = [
-//   "Messi", "Ronaldo", "Neymar", "Mbappé", "Haaland", "De Bruyne", 
-//   "Modrić", "Salah", "Vinícius Jr.", "Lewandowski", "Benzema", "Courtois",
-//   "Ronaldinho", "Zidane", "Maradona", "Pelé", "Kroos", "Di María"
-// ];
-
 const generateRoomCode = () => {
   let code = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
