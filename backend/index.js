@@ -107,7 +107,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Lógica de disconnect (sin cambios)
+  // Lógica de disconnect (sin cambios2)
   socket.on('disconnect', () => {
     console.log(`🔌 Jugador desconectado: ${socket.id}`);
     let roomCodeToUpdate = null;
