@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:country_flags/country_flags.dart';
 
 class RoleRevealPage extends StatelessWidget {
-  // 1. Cambiamos el tipo a 'dynamic' para que acepte tanto String como Map
-  final dynamic role;
+  // Ahora podemos volver a decir que 'role' es siempre un Map, lo que es más seguro
+  final Map<String, dynamic> role;
 
   const RoleRevealPage({
     Key? key,
@@ -12,20 +12,17 @@ class RoleRevealPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 2. Hacemos una comprobación segura del tipo de dato
-    // Si 'role' es un String y además es igual a 'IMPOSTOR', entonces es el impostor.
-    final bool isImpostor = role is String && role == 'IMPOSTOR';
+    // La comprobación vuelve a ser simple y directa
+    final bool isImpostor = role['name'] == 'IMPOSTOR';
 
     if (isImpostor) {
-      // Si es impostor, mostramos la vista clásica
       return buildImpostorView(context);
     } else {
-      // Si no, es un objeto de jugador, y mostramos la vista de futbolista
       return buildPlayerView(context);
     }
   }
 
-  // Widget para la vista del Impostor (sin cambios)
+  // Widget para la vista del Impostor
   Widget buildImpostorView(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
@@ -62,7 +59,6 @@ class RoleRevealPage extends StatelessWidget {
 
   // Widget para la vista del Futbolista con Bandera
   Widget buildPlayerView(BuildContext context) {
-    // 3. Ahora que sabemos que 'role' no es un String, podemos tratarlo como un Map
     final String playerName = role['name'] ?? 'N/A';
     final String playerCountryCode = role['countryCode'] ?? 'AR';
 

@@ -8,10 +8,8 @@ const server = http.createServer(app);
 const io = new Server(server);
 const PORT = 3000;
 
-// 2. Leemos la lista de jugadores desde el archivo JSON
 const playersData = fs.readFileSync('players.json');
 const soccerPlayers = JSON.parse(playersData);
-
 console.log(`✅ ${soccerPlayers.length} futbolistas cargados.`);
 
 let rooms = {};
@@ -31,11 +29,7 @@ io.on('connection', (socket) => {
   socket.on('createRoom', (playerName) => {
     const roomCode = generateRoomCode();
     socket.join(roomCode);
-    
-    rooms[roomCode] = {
-      players: [{ id: socket.id, name: playerName }],
-    };
-
+    rooms[roomCode] = { players: [{ id: socket.id, name: playerName }] };
     console.log(`✅ Sala creada: ${roomCode} por ${playerName}`);
     socket.emit('roomCreated', roomCode);
   });
@@ -45,18 +39,15 @@ io.on('connection', (socket) => {
     if (rooms[upperCaseRoomCode]) {
       rooms[upperCaseRoomCode].players.push({ id: socket.id, name: playerName });
       socket.join(upperCaseRoomCode);
-      
       console.log(`👍 ${playerName} se unió a la sala ${upperCaseRoomCode}`);
-      
       socket.emit('joinSuccess', { roomCode: upperCaseRoomCode, players: rooms[upperCaseRoomCode].players });
       socket.to(upperCaseRoomCode).emit('updatePlayers', rooms[upperCaseRoomCode].players);
-
     } else {
       socket.emit('error', 'La sala no existe');
     }
   });
 
-  // ===== LÓGICA DE 'STARTGAME' ACTUALIZADA =====
+  // ===== LÓGICA DE 'STARTGAME' COMPLETAMENTE CORREGIDA =====
   socket.on('startGame', (roomCode) => {
     const room = rooms[roomCode];
     if (!room || room.players[0].id !== socket.id) return;
@@ -65,25 +56,29 @@ io.on('connection', (socket) => {
     const playerCount = players.length;
     let impostorCount = 1;
 
-    if (playerCount >= 8) {
+    // 1. REGLA DE IMPOSTORES CORREGIDA
+    // Si hay 5 o más jugadores, son 2 impostores. Si no, es 1.
+    if (playerCount >= 5) {
       impostorCount = 2;
-    } else if (playerCount >= 4) {
-      impostorCount = 1;
     }
-    
-    // Barajamos jugadores y futbolistas para que sea aleatorio
-    const shuffledPlayers = [...players].sort(() => 0.5 - Math.random());
-    const shuffledSoccerPlayers = [...soccerPlayers].sort(() => 0.5 - Math.random());
 
+    // 2. MEJOR MÉTODO PARA BARAJAR JUGADORES (MÁS ALEATORIO)
+    const shuffledPlayers = [...players].sort(() => 0.5 - Math.random());
+    
+    // 3. ELEGIMOS UN SOLO FUTBOLISTA PARA TODOS LOS TRIPULANTES
+    const assignedSoccerPlayer = soccerPlayers[Math.floor(Math.random() * soccerPlayers.length)];
+
+    // 4. ASIGNAMOS ROLES SEGÚN LAS NUEVAS REGLAS
     for (let i = 0; i < playerCount; i++) {
       const player = shuffledPlayers[i];
       let assignedRole;
 
       if (i < impostorCount) {
-        assignedRole = 'IMPOSTOR';
+        // Para ser consistentes, el impostor también es un objeto
+        assignedRole = { "name": "IMPOSTOR" };
       } else {
-        // Asignamos un futbolista de la lista barajada
-        assignedRole = shuffledSoccerPlayers.pop() || "Futbolista Genérico"; // || es por si te quedas sin nombres
+        // Todos los demás reciben el MISMO futbolista
+        assignedRole = assignedSoccerPlayer;
       }
       
       // Enviamos el rol de forma privada a cada jugador
@@ -93,17 +88,15 @@ io.on('connection', (socket) => {
     console.log(`🚀 ¡Juego iniciado en la sala ${roomCode}! Roles asignados.`);
   });
   
-  // Lógica de leaveRoom y disconnect se quedan igual
+  // Lógica de leaveRoom (sin cambios)
   socket.on('leaveRoom', (roomCode) => {
     const room = rooms[roomCode];
     if (room) {
       const playerIndex = room.players.findIndex(player => player.id === socket.id);
-
       if (playerIndex !== -1) {
         room.players.splice(playerIndex, 1);
         socket.leave(roomCode);
         console.log(`👋 Jugador ${socket.id} abandonó la sala ${roomCode}`);
-
         if (room.players.length === 0) {
           delete rooms[roomCode];
           console.log(`🗑️ Sala vacía ${roomCode} eliminada.`);
@@ -114,6 +107,7 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Lógica de disconnect (sin cambios)
   socket.on('disconnect', () => {
     console.log(`🔌 Jugador desconectado: ${socket.id}`);
     let roomCodeToUpdate = null;
