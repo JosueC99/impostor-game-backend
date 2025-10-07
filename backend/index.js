@@ -80,14 +80,14 @@ io.on('connection', (socket) => {
       let assignedRole;
 
       if (i < impostorCount) {
-        assignedRole = 'IMPOSTOR';
+        assignedRole = { name: 'IMPOSTOR', countryCode: 'XX' }; // XX es un código de país inventado
       } else {
         // Asignamos un futbolista de la lista barajada
-        assignedRole = shuffledSoccerPlayers.pop() || "Futbolista Genérico"; // || es por si te quedas sin nombres
+        assignedRole = shuffledSoccerPlayers.pop() || { name: "Futbolista Genérico", countryCode: "AR" };
       }
       
-      // Enviamos el rol de forma privada a cada jugador
-      io.to(player.id).emit('gameStarted', { role: assignedRole });
+      // Enviamos el rol de forma privada y SIN el wrapper 'role'
+      io.to(player.id).emit('gameStarted', assignedRole);
     }
 
     console.log(`🚀 ¡Juego iniciado en la sala ${roomCode}! Roles asignados.`);

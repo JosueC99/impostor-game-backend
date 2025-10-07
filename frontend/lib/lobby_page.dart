@@ -38,15 +38,11 @@ class _LobbyPageState extends State<LobbyPage> {
     });
 
     // Listener para cuando el anfitrión inicia el juego
-    // En lobby_page.dart
     widget.socket.on('gameStarted', (data) {
       if (mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(
-            // El error está en que 'role' ahora debe ser el objeto 'data' completo,
-            // no solo un String.
-            // La siguiente línea es la correcta:
             builder: (context) => RoleRevealPage(role: data),
           ),
         );
