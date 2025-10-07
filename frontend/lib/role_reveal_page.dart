@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:country_flags/country_flags.dart'; // Asegúrate de tener este paquete en pubspec.yaml
+import 'package:country_flags/country_flags.dart';
 
 class RoleRevealPage extends StatelessWidget {
-  // El rol sigue siendo un objeto (Map) que viene del servidor
-  final Map<String, dynamic> role;
+  // 1. Cambiamos el tipo a 'dynamic' para que acepte tanto String como Map
+  final dynamic role;
 
   const RoleRevealPage({
     Key? key,
@@ -12,19 +12,20 @@ class RoleRevealPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Verificamos si es un impostor o un jugador por la estructura del objeto
-    final bool isImpostor = role['name'] == 'IMPOSTOR';
+    // 2. Hacemos una comprobación segura del tipo de dato
+    // Si 'role' es un String y además es igual a 'IMPOSTOR', entonces es el impostor.
+    final bool isImpostor = role is String && role == 'IMPOSTOR';
 
     if (isImpostor) {
       // Si es impostor, mostramos la vista clásica
       return buildImpostorView(context);
     } else {
-      // Si no, mostramos la nueva vista de futbolista con bandera
+      // Si no, es un objeto de jugador, y mostramos la vista de futbolista
       return buildPlayerView(context);
     }
   }
 
-  // Widget para la vista del Impostor
+  // Widget para la vista del Impostor (sin cambios)
   Widget buildImpostorView(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
@@ -44,7 +45,7 @@ class RoleRevealPage extends StatelessWidget {
               Text(
                 'IMPOSTOR',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 70, color: Colors.red, fontWeight: FontWeight.bold, letterSpacing: 4),
+                style: TextStyle(fontSize: 60, color: Colors.red, fontWeight: FontWeight.bold, letterSpacing: 4),
               ),
               SizedBox(height: 80),
               ElevatedButton(
@@ -61,8 +62,9 @@ class RoleRevealPage extends StatelessWidget {
 
   // Widget para la vista del Futbolista con Bandera
   Widget buildPlayerView(BuildContext context) {
+    // 3. Ahora que sabemos que 'role' no es un String, podemos tratarlo como un Map
     final String playerName = role['name'] ?? 'N/A';
-    final String playerCountryCode = role['countryCode'] ?? 'AR'; // 'AR' como fallback por si acaso
+    final String playerCountryCode = role['countryCode'] ?? 'AR';
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -80,7 +82,6 @@ class RoleRevealPage extends StatelessWidget {
               ),
               SizedBox(height: 40),
               
-              // Bandera del País
               Center(
                 child: CountryFlag.fromCountryCode(
                   playerCountryCode,
@@ -91,15 +92,10 @@ class RoleRevealPage extends StatelessWidget {
               ),
               SizedBox(height: 20),
 
-              // Nombre del Jugador
               Text(
                 playerName,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 50,
-                  color: Colors.greenAccent,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 50, color: Colors.greenAccent, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 80),
 
