@@ -12,15 +12,25 @@ class RoleRevealPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Verificamos si es un impostor o un jugador por la estructura del objeto
-    final bool isImpostor = role['name'] == 'IMPOSTOR';
+    // Extraemos el rol real, que está anidado dentro del mapa.
+    final dynamic roleData = role['role'];
+
+    // Comprobamos si el rol es un String y si es "IMPOSTOR".
+    final bool isImpostor = roleData is String && roleData == 'IMPOSTOR';
 
     if (isImpostor) {
-      // Si es impostor, mostramos la vista clásica
+      // Si es impostor, mostramos la vista de impostor.
       return buildImpostorView(context);
+    } else if (roleData is Map<String, dynamic>) {
+      // Si es un mapa, es un futbolista. Pasamos los datos del futbolista.
+      return buildPlayerView(context, roleData);
     } else {
-      // Si no, mostramos la nueva vista de futbolista con bandera
-      return buildPlayerView(context);
+      // Fallback por si los datos no tienen el formato esperado.
+      return Scaffold(
+        body: Center(
+          child: Text('Error: Rol desconocido'),
+        ),
+      );
     }
   }
 
@@ -60,9 +70,9 @@ class RoleRevealPage extends StatelessWidget {
   }
 
   // Widget para la vista del Futbolista con Bandera
-  Widget buildPlayerView(BuildContext context) {
-    final String playerName = role['name'] ?? 'N/A';
-    final String playerCountryCode = role['countryCode'] ?? 'AR'; // 'AR' como fallback por si acaso
+  Widget buildPlayerView(BuildContext context, Map<String, dynamic> playerData) {
+    final String playerName = playerData['name'] ?? 'N/A';
+    final String playerCountryCode = playerData['countryCode'] ?? 'AR'; // 'AR' como fallback por si acaso
 
     return Scaffold(
       backgroundColor: Colors.black,
