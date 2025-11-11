@@ -38,20 +38,28 @@ class _LobbyPageState extends State<LobbyPage> {
     });
 
     // Listener para cuando el anfitrión inicia el juego
-    // En lobby_page.dart
     widget.socket.on('gameStarted', (data) {
       if (mounted) {
+        final bool isHost = players.isNotEmpty && players[0]['id'] == widget.socket.id;
         Navigator.push(
           context,
           MaterialPageRoute(
-            // El error está en que 'role' ahora debe ser el objeto 'data' completo,
-            // no solo un String.
-            // La siguiente línea es la correcta:
-            //...
-            builder: (context) => RoleRevealPage(role: data['role']), // Le pasas solo lo de adentro
-            //...
+            builder: (context) => RoleRevealPage(
+              role: data['role'],
+              socket: widget.socket,
+              isHost: isHost,
+              roomCode: widget.roomCode,
+            ),
           ),
         );
+      }
+    });
+
+    // Listener para reiniciar el juego
+    widget.socket.on('restartGame', (_) {
+      if (mounted) {
+        // Hacemos pop para volver de RoleRevealPage al LobbyPage
+        Navigator.pop(context);
       }
     });
   }

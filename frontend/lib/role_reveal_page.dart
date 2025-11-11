@@ -1,19 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:country_flags/country_flags.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-class RoleRevealPage extends StatelessWidget {
-  // Ahora podemos volver a decir que 'role' es siempre un Map, lo que es más seguro
+class RoleRevealPage extends StatefulWidget {
   final Map<String, dynamic> role;
+  final IO.Socket socket;
+  final bool isHost;
+  final String roomCode;
 
   const RoleRevealPage({
     Key? key,
     required this.role,
+    required this.socket,
+    required this.isHost,
+    required this.roomCode,
   }) : super(key: key);
+
+  @override
+  _RoleRevealPageState createState() => _RoleRevealPageState();
+}
+
+class _RoleRevealPageState extends State<RoleRevealPage> {
+  bool _isWaiting = false;
 
   @override
   Widget build(BuildContext context) {
     // La comprobación vuelve a ser simple y directa
-    final bool isImpostor = role['name'] == 'IMPOSTOR';
+    final bool isImpostor = widget.role['name'] == 'IMPOSTOR';
 
     if (isImpostor) {
       return buildImpostorView(context);
@@ -45,11 +58,22 @@ class RoleRevealPage extends StatelessWidget {
                 style: TextStyle(fontSize: 60, color: Colors.red, fontWeight: FontWeight.bold, letterSpacing: 4),
               ),
               SizedBox(height: 80),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                child: Text('JUGAR DE NUEVO'),
-                style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 20)),
-              ),
+              if (_isWaiting)
+                const Text('Esperando al anfitrión...', style: TextStyle(color: Colors.white, fontSize: 18)),
+              if (!_isWaiting)
+                ElevatedButton(
+                  onPressed: () {
+                    if (widget.isHost) {
+                      widget.socket.emit('playAgain', widget.roomCode);
+                    } else {
+                      setState(() {
+                        _isWaiting = true;
+                      });
+                    }
+                  },
+                  child: Text(widget.isHost ? 'INICIAR PRÓXIMA RONDA' : 'JUGAR DE NUEVO'),
+                  style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 20)),
+                ),
             ],
           ),
         ),
@@ -59,8 +83,8 @@ class RoleRevealPage extends StatelessWidget {
 
   // Widget para la vista del Futbolista con Bandera
   Widget buildPlayerView(BuildContext context) {
-    final String playerName = role['name'] ?? 'N/A';
-    final String playerCountryCode = role['countryCode'] ?? 'AR';
+    final String playerName = widget.role['name'] ?? 'N/A';
+    final String playerCountryCode = widget.role['countryCode'] ?? 'AR';
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -95,11 +119,22 @@ class RoleRevealPage extends StatelessWidget {
               ),
               SizedBox(height: 80),
 
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                child: Text('JUGAR DE NUEVO'),
-                style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 20)),
-              )
+              if (_isWaiting)
+                const Text('Esperando al anfitrión...', style: TextStyle(color: Colors.white, fontSize: 18)),
+              if (!_isWaiting)
+                ElevatedButton(
+                  onPressed: () {
+                    if (widget.isHost) {
+                      widget.socket.emit('playAgain', widget.roomCode);
+                    } else {
+                      setState(() {
+                        _isWaiting = true;
+                      });
+                    }
+                  },
+                  child: Text(widget.isHost ? 'INICIAR PRÓXIMA RONDA' : 'JUGAR DE NUEVO'),
+                  style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 20)),
+                )
             ],
           ),
         ),

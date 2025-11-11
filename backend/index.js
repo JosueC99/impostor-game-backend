@@ -45,11 +45,18 @@ io.on('connection', (socket) => {
   socket.on('joinRoom', ({ playerName, roomCode }) => {
     const upperCaseRoomCode = roomCode.toUpperCase();
     if (rooms[upperCaseRoomCode]) {
-      rooms[upperCaseRoomCode].players.push({ id: socket.id, name: playerName });
-      socket.join(upperCaseRoomCode);
-      console.log(`👍 ${playerName} se unió a la sala ${upperCaseRoomCode}`);
-      socket.emit('joinSuccess', { roomCode: upperCaseRoomCode, players: rooms[upperCaseRoomCode].players });
-      socket.to(upperCaseRoomCode).emit('updatePlayers', rooms[upperCaseRoomCode].players);
+      const playerExists = rooms[upperCaseRoomCode].players.some(player => player.id === socket.id);
+      if (!playerExists) {
+        rooms[upperCaseRoomCode].players.push({ id: socket.id, name: playerName });
+        socket.join(upperCaseRoomCode);
+        console.log(`👍 ${playerName} se unió a la sala ${upperCaseRoomCode}`);
+        socket.emit('joinSuccess', { roomCode: upperCaseRoomCode, players: rooms[upperCaseRoomCode].players });
+        socket.to(upperCaseRoomCode).emit('updatePlayers', rooms[upperCaseRoomCode].players);
+      } else {
+        console.log(`🤔 ${playerName} ya está en la sala ${upperCaseRoomCode}`);
+        // Opcional: podrías emitir un evento para notificar al cliente que ya está unido
+        socket.emit('alreadyJoined', { roomCode: upperCaseRoomCode, players: rooms[upperCaseRoomCode].players });
+      }
     } else {
       socket.emit('error', 'La sala no existe');
     }
@@ -94,6 +101,16 @@ io.on('connection', (socket) => {
     }
 
     console.log(`🚀 ¡Juego iniciado en la sala ${roomCode}! Roles asignados.`);
+  });
+
+  socket.on('playAgain', (roomCode) => {
+    const room = rooms[roomCode];
+    // Solo el anfitrión (el primer jugador) puede reiniciar el juego
+    if (room && room.players[0].id === socket.id) {
+      console.log(`🔄 El anfitrión ha solicitado jugar de nuevo en la sala ${roomCode}.`);
+      // Reutilizamos la lógica de 'startGame' para reiniciar la partida
+      io.to(roomCode).emit('restartGame'); // Notificamos a los clientes para que vuelvan al lobby
+    }
   });
   
   // Lógica de leaveRoom (sin cambios)
