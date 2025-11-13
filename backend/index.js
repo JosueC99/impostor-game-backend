@@ -208,13 +208,15 @@ io.on('connection', (socket) => {
     if (room) {
       const playerIndex = room.players.findIndex(player => player.id === socket.id);
       if (playerIndex !== -1) {
-        room.players.splice(playerIndex, 1);
-        socket.leave(roomCode);
-        console.log(`👋 Jugador ${socket.id} abandonó la sala ${roomCode}`);
-        if (room.players.length === 0) {
+        // Si el anfitrión abandona, disolvemos la sala
+        if (playerIndex === 0) {
+          console.log(`- El anfitrión ${socket.id} ha abandonado la sala ${roomCode}. Disolviendo...`);
+          socket.to(roomCode).emit('roomDisbanded');
           delete rooms[roomCode];
-          console.log(`🗑️ Sala vacía ${roomCode} eliminada.`);
         } else {
+          room.players.splice(playerIndex, 1);
+          socket.leave(roomCode);
+          console.log(`👋 Jugador ${socket.id} abandonó la sala ${roomCode}`);
           io.to(roomCode).emit('updatePlayers', room.players);
         }
       }

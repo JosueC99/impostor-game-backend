@@ -2,7 +2,7 @@
   {
     "name": "Jude Bellingham",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Vinícius Júnior",
@@ -37,7 +37,7 @@
   {
     "name": "Phil Foden",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Rodri",
@@ -47,7 +47,7 @@
   {
     "name": "Harry Kane",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Lautaro Martínez",
@@ -62,12 +62,12 @@
   {
     "name": "Bukayo Saka",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Declan Rice",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Mohamed Salah",
@@ -87,7 +87,7 @@
   {
     "name": "Cole Palmer",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Victor Osimhen",
@@ -192,7 +192,7 @@
   {
     "name": "Trent Alexander-Arnold",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Bruno Fernandes",
@@ -237,7 +237,7 @@
   {
     "name": "John Stones",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "İlkay Gündoğan",
@@ -377,12 +377,12 @@
   {
     "name": "Jack Grealish",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Kyle Walker",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Ángel Di María",
@@ -552,7 +552,7 @@
   {
     "name": "George Best",
     "country": "Irlanda del Norte",
-    "countryCode": "GB-NIR"
+    "countryCode": "GB"
   },
   {
     "name": "Marco van Basten",
@@ -562,7 +562,7 @@
   {
     "name": "Bobby Charlton",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Lothar Matthäus",
@@ -627,7 +627,7 @@
   {
     "name": "Bobby Moore",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Giacinto Facchetti",
@@ -637,7 +637,7 @@
   {
     "name": "Kenny Dalglish",
     "country": "Escocia",
-    "countryCode": "GB-SCT"
+    "countryCode": "GB"
   },
   {
     "name": "Michael Laudrup",
@@ -782,17 +782,17 @@
   {
     "name": "Paul Scholes",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Steven Gerrard",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Frank Lampard",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Andrea Pirlo",
@@ -812,12 +812,12 @@
   {
     "name": "David Beckham",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Ryan Giggs",
     "country": "Gales",
-    "countryCode": "GB-WLS"
+    "countryCode": "GB"
   },
   {
     "name": "Francesco Totti",
@@ -872,12 +872,12 @@
   {
     "name": "Alan Shearer",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Gary Lineker",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Hugo Sánchez",
@@ -917,7 +917,7 @@
   {
     "name": "Kevin Keegan",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   },
   {
     "name": "Oleg Blokhin",
@@ -947,6 +947,6 @@
   {
     "name": "Michael Owen",
     "country": "Inglaterra",
-    "countryCode": "GB-ENG"
+    "countryCode": "GB"
   }
 ]
