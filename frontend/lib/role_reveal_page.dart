@@ -79,7 +79,11 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                 ),
               const SizedBox(height: 20),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  // Notificamos al servidor que ya no estamos listos
+                  widget.socket.emit('playerUnready', widget.roomCode);
+                  Navigator.of(context).pop();
+                },
                 child: const Text('Regresar al Lobby'),
               ),
             ],
@@ -114,7 +118,7 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    color: Colors.blue[900], // Azul oscuro
+                    color: const Color(0xFF28252B), // Color exacto solicitado
                     padding: const EdgeInsets.all(8), // Un poco de espacio
                     child: CountryFlag.fromCountryCode(
                       playerCountryCode,
@@ -154,7 +158,11 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                 ),
               const SizedBox(height: 20),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  // Notificamos al servidor que ya no estamos listos
+                  widget.socket.emit('playerUnready', widget.roomCode);
+                  Navigator.of(context).pop();
+                },
                 child: const Text('Regresar al Lobby'),
               ),
             ],

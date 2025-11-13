@@ -179,6 +179,18 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('playerUnready', (roomCode) => {
+    const room = rooms[roomCode];
+    if (room) {
+      const player = room.players.find(p => p.id === socket.id);
+      if (player && player.isReady) {
+        player.isReady = false;
+        console.log(`- ${player.name} ya no está listo en la sala ${roomCode}.`);
+        io.to(roomCode).emit('updatePlayers', room.players);
+      }
+    }
+  });
+
   socket.on('disbandRoom', (roomCode) => {
     const room = rooms[roomCode];
     if (room && room.players.length > 0 && room.players[0].id === socket.id) {
