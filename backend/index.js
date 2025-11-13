@@ -45,7 +45,8 @@ io.on('connection', (socket) => {
 
     const roomCode = generateRoomCode();
     socket.join(roomCode);
-    rooms[roomCode] = { players: [{ id: socket.id, name: playerName }] };
+    // Añadimos el estado 'isReady' al crear la sala
+    rooms[roomCode] = { players: [{ id: socket.id, name: playerName, isReady: false }] };
     console.log(`✅ Sala creada: ${roomCode} por ${playerName}`);
     socket.emit('roomCreated', roomCode);
   });
@@ -55,7 +56,8 @@ io.on('connection', (socket) => {
     if (rooms[upperCaseRoomCode]) {
       const playerExists = rooms[upperCaseRoomCode].players.some(player => player.id === socket.id);
       if (!playerExists) {
-        rooms[upperCaseRoomCode].players.push({ id: socket.id, name: playerName });
+        // Añadimos el estado 'isReady' al unirse
+        rooms[upperCaseRoomCode].players.push({ id: socket.id, name: playerName, isReady: false });
         socket.join(upperCaseRoomCode);
         console.log(`👍 ${playerName} se unió a la sala ${upperCaseRoomCode}`);
         socket.emit('joinSuccess', { roomCode: upperCaseRoomCode, players: rooms[upperCaseRoomCode].players });
@@ -122,6 +124,13 @@ io.on('connection', (socket) => {
     const isHost = room.players.length > 0 && room.players[0].id === socket.id;
 
     if (isHost) {
+      // CORRECCIÓN: La comprobación debe ir aquí dentro
+      const allReady = room.players.every(p => p.id === socket.id || p.isReady);
+      if (!allReady) {
+        socket.emit('error', 'No todos los jugadores están listos.');
+        return;
+      }
+
       console.log(`✅ El anfitrión ${socket.id} está reiniciando la sala ${roomCode}.`);
 
       // Reasignar roles y reiniciar el juego para todos en la sala.
@@ -149,8 +158,24 @@ io.on('connection', (socket) => {
 
       console.log(`🚀 ¡Nueva ronda iniciada en la sala ${roomCode}!`);
 
+      // Reiniciamos el estado 'isReady' de todos los jugadores para la siguiente ronda
+      room.players.forEach(p => p.isReady = false);
+      io.to(roomCode).emit('updatePlayers', room.players);
+
     } else {
       console.log(`⚠️  ${socket.id} (no anfitrión) intentó reiniciar la sala ${roomCode}.`);
+    }
+  });
+
+  socket.on('playerReady', (roomCode) => {
+    const room = rooms[roomCode];
+    if (room) {
+      const player = room.players.find(p => p.id === socket.id);
+      if (player) {
+        player.isReady = true;
+        console.log(`👍 ${player.name} está listo en la sala ${roomCode}.`);
+        io.to(roomCode).emit('updatePlayers', room.players);
+      }
     }
   });
   

@@ -67,12 +67,14 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                       print('>>> BOTÓN ANFITRIÓN: Enviando evento "playAgain" para la sala ${widget.roomCode}');
                       widget.socket.emit('playAgain', widget.roomCode);
                     } else {
+                      // El no anfitrión ahora emite 'playerReady'
+                      widget.socket.emit('playerReady', widget.roomCode);
                       setState(() {
                         _isWaiting = true;
                       });
                     }
                   },
-                  child: Text(widget.isHost ? 'INICIAR PRÓXIMA RONDA' : 'JUGAR DE NUEVO'),
+                  child: const Text('JUGAR DE NUEVO'),
                   style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 20)),
                 ),
             ],
@@ -129,12 +131,14 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                       print('>>> BOTÓN ANFITRIÓN: Enviando evento "playAgain" para la sala ${widget.roomCode}');
                       widget.socket.emit('playAgain', widget.roomCode);
                     } else {
+                      // El no anfitrión ahora emite 'playerReady'
+                      widget.socket.emit('playerReady', widget.roomCode);
                       setState(() {
                         _isWaiting = true;
                       });
                     }
                   },
-                  child: Text(widget.isHost ? 'INICIAR PRÓXIMA RONDA' : 'JUGAR DE NUEVO'),
+                  child: const Text('JUGAR DE NUEVO'),
                   style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 20)),
                 )
             ],

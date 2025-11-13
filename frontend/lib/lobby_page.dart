@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Necesario para el portapapeles
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'role_reveal_page.dart';
 
@@ -116,9 +117,23 @@ class _LobbyPageState extends State<LobbyPage> {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      widget.roomCode,
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          widget.roomCode,
+                          style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.copy),
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: widget.roomCode));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('¡Código copiado!')),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -142,11 +157,14 @@ class _LobbyPageState extends State<LobbyPage> {
                   final player = players[index];
                   // Resaltamos al anfitrión
                   final bool isPlayerHost = index == 0;
+                  final bool isReady = player['isReady'] ?? false;
                   return Card(
                     color: isPlayerHost ? Colors.blueGrey[700] : null,
                     child: ListTile(
                       leading: Icon(isPlayerHost ? Icons.star : Icons.person),
                       title: Text(player['name'] ?? 'Sin Nombre'),
+                      // Mostramos un check si el jugador está listo
+                      trailing: isReady ? const Icon(Icons.check, color: Colors.greenAccent) : null,
                     ),
                   );
                 },
