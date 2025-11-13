@@ -64,6 +64,7 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                 ElevatedButton(
                   onPressed: () {
                     if (widget.isHost) {
+                      print('>>> BOTÓN ANFITRIÓN: Enviando evento "playAgain" para la sala ${widget.roomCode}');
                       widget.socket.emit('playAgain', widget.roomCode);
                     } else {
                       setState(() {
@@ -125,6 +126,7 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                 ElevatedButton(
                   onPressed: () {
                     if (widget.isHost) {
+                      print('>>> BOTÓN ANFITRIÓN: Enviando evento "playAgain" para la sala ${widget.roomCode}');
                       widget.socket.emit('playAgain', widget.roomCode);
                     } else {
                       setState(() {

@@ -26,12 +26,17 @@ class _LobbyPageState extends State<LobbyPage> {
   @override
   void initState() {
     super.initState();
-    players = widget.initialPlayers; // Guardamos la lista inicial de jugadores
+    // CORRECCIÓN: Aplanamos la lista inicial por si también viene anidada
+    players = (widget.initialPlayers.isNotEmpty && widget.initialPlayers[0] is List)
+        ? widget.initialPlayers[0]
+        : widget.initialPlayers;
 
     // Listener para actualizar la lista de jugadores cuando alguien nuevo se une
-    widget.socket.on('updatePlayers', (updatedPlayers) {
-      print("Recibida actualización de jugadores: $updatedPlayers");
-      if (mounted) { // Nos aseguramos de que el widget todavía exista
+    widget.socket.on('updatePlayers', (data) {
+      if (mounted) {
+        // CORRECCIÓN: Aplanamos la lista si viene anidada como [[...]] en lugar de [...]
+        final List<dynamic> updatedPlayers = (data is List && data.isNotEmpty && data[0] is List) ? data[0] : (data as List? ?? []);
+        print("Jugadores actualizados (corregido): $updatedPlayers");
         setState(() {
           players = updatedPlayers;
         });

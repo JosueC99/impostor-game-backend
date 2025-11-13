@@ -68,7 +68,12 @@
                 initialPlayers: [ {'id': _socket.id, 'name': _nameController.text} ],
               ),
             ),
-          ).then((_) => setState(() => _isLoading = false)); // Se ejecuta cuando vuelves
+          ).then((_) {
+            // Verificación explícita para reiniciar el estado de carga
+            if (mounted && _isLoading) {
+              setState(() => _isLoading = false);
+            }
+          });
         }
       });
 
@@ -87,7 +92,12 @@
                 initialPlayers: players,
               ),
             ),
-          ).then((_) => setState(() => _isLoading = false)); // Se ejecuta cuando vuelves
+          ).then((_) {
+            // Verificación explícita para reiniciar el estado de carga
+            if (mounted && _isLoading) {
+              setState(() => _isLoading = false);
+            }
+          });
         }
       });
 
@@ -117,7 +127,12 @@
                 initialPlayers: data['players'],
               ),
             ),
-          ).then((_) => setState(() => _isLoading = false)); // Se ejecuta cuando vueles
+          ).then((_) {
+            // Verificación explícita para reiniciar el estado de carga
+            if (mounted && _isLoading) {
+              setState(() => _isLoading = false);
+            }
+          });
         }
       });
     }
