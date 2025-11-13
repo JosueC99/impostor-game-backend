@@ -177,6 +177,8 @@
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
+                  const Icon(Icons.sports_soccer, size: 150, color: Colors.white70),
+                  const SizedBox(height: 20),
                   TextField(
                     controller: _nameController,
                     decoration: const InputDecoration(
@@ -200,7 +202,7 @@
 
                   TextField(
                     controller: _roomCodeController,
-                    textCapitalization: TextCapitalization.characters, // Para que sea más fácil escribir códigos
+                    textCapitalization: TextCapitalization.characters,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Código de la Sala',
@@ -209,7 +211,7 @@
                   const SizedBox(height: 20),
 
                   _isLoading
-                      ? const SizedBox.shrink() // Ocultar el segundo botón si está cargando
+                      ? const SizedBox.shrink()
                       : ElevatedButton(
                           onPressed: _joinRoom,
                           style: ElevatedButton.styleFrom(

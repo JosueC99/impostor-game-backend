@@ -68,6 +68,16 @@ class _LobbyPageState extends State<LobbyPage> {
         }
       }
     });
+
+    widget.socket.on('roomDisbanded', (_) {
+      if (mounted) {
+        // Mostramos un mensaje y volvemos a la pantalla de inicio
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El anfitrión ha disuelto la sala.')),
+        );
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
+    });
   }
 
   @override
@@ -75,6 +85,7 @@ class _LobbyPageState extends State<LobbyPage> {
     // Es una buena práctica dejar de escuchar eventos cuando la pantalla se destruye
     widget.socket.off('updatePlayers');
     widget.socket.off('gameStarted');
+    widget.socket.off('roomDisbanded');
     super.dispose();
   }
 
@@ -171,18 +182,30 @@ class _LobbyPageState extends State<LobbyPage> {
               ),
             ),
             
-            // Botón para empezar el juego, solo visible para el anfitrión
+            // Botones de acción para el anfitrión
             if (isHost)
-              ElevatedButton(
-                onPressed: () {
-                  // Le decimos al servidor que inicie el juego para esta sala
-                  widget.socket.emit('startGame', widget.roomCode);
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.green,
-                ),
-                child: const Text('EMPEZAR JUEGO', style: TextStyle(fontSize: 18)),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      widget.socket.emit('startGame', widget.roomCode);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.green,
+                    ),
+                    child: const Text('EMPEZAR JUEGO', style: TextStyle(fontSize: 18)),
+                  ),
+                  const SizedBox(height: 10),
+                  TextButton(
+                    onPressed: () {
+                      widget.socket.emit('disbandRoom', widget.roomCode);
+                      Navigator.pop(context); // El anfitrión vuelve al menú principal
+                    },
+                    child: const Text('Disolver Sala', style: TextStyle(color: Colors.redAccent)),
+                  ),
+                ],
               ),
           ],
         ),

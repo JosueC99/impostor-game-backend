@@ -77,6 +77,11 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                   child: const Text('JUGAR DE NUEVO'),
                   style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 20)),
                 ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Regresar al Lobby'),
+              ),
             ],
           ),
         ),
@@ -140,7 +145,12 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                   },
                   child: const Text('JUGAR DE NUEVO'),
                   style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 20)),
-                )
+                ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Regresar al Lobby'),
+              ),
             ],
           ),
         ),

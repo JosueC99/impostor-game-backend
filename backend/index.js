@@ -178,6 +178,17 @@ io.on('connection', (socket) => {
       }
     }
   });
+
+  socket.on('disbandRoom', (roomCode) => {
+    const room = rooms[roomCode];
+    if (room && room.players.length > 0 && room.players[0].id === socket.id) {
+      console.log(`- El anfitrión ${socket.id} ha disuelto la sala ${roomCode}.`);
+      // Notificamos a los demás jugadores que la sala fue disuelta
+      socket.to(roomCode).emit('roomDisbanded');
+      // Eliminamos la sala del servidor
+      delete rooms[roomCode];
+    }
+  });
   
   // Lógica de leaveRoom (sin cambios)
   socket.on('leaveRoom', (roomCode) => {
