@@ -36,6 +36,7 @@
     final TextEditingController _nameController = TextEditingController();
     final TextEditingController _roomCodeController = TextEditingController();
     late IO.Socket _socket;
+    bool _isLoading = false;
 
     @override
     void initState() {
@@ -93,6 +94,7 @@
       // Listener para manejar errores del servidor
       _socket.on('error', (errorMessage) {
         if (mounted) {
+          setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error: $errorMessage'),
@@ -101,31 +103,48 @@
           );
         }
       });
+
+      // Listener para cuando ya estás unido (para reconectar)
+      _socket.on('alreadyJoined', (data) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LobbyPage(
+                roomCode: data['roomCode'],
+                socket: _socket,
+                initialPlayers: data['players'],
+              ),
+            ),
+          );
+        }
+      });
     }
 
     void _createRoom() {
-      if (_nameController.text.isNotEmpty) {
-        _socket.emit('createRoom', _nameController.text);
-      } else {
-        // Opcional: Mostrar error si el nombre está vacío
+      if (_nameController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Por favor, introduce tu nombre')),
         );
+        return;
       }
+      setState(() => _isLoading = true);
+      _socket.emit('createRoom', _nameController.text);
     }
 
     void _joinRoom() {
-      if (_nameController.text.isNotEmpty && _roomCodeController.text.isNotEmpty) {
-        _socket.emit('joinRoom', {
-          'playerName': _nameController.text,
-          'roomCode': _roomCodeController.text.toUpperCase(),
-        });
-      } else {
-        // Opcional: Mostrar error si algún campo está vacío
+      if (_nameController.text.isEmpty || _roomCodeController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Por favor, introduce tu nombre y el código de la sala')),
         );
+        return;
       }
+      setState(() => _isLoading = true);
+      _socket.emit('joinRoom', {
+        'playerName': _nameController.text,
+        'roomCode': _roomCodeController.text.toUpperCase(),
+      });
     }
 
     @override
@@ -152,13 +171,15 @@
                   ),
                   const SizedBox(height: 20),
                   
-                  ElevatedButton(
-                    onPressed: _createRoom,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text('CREAR SALA', style: TextStyle(fontSize: 18)),
-                  ),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ElevatedButton(
+                          onPressed: _createRoom,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Text('CREAR SALA', style: TextStyle(fontSize: 18)),
+                        ),
                   
                   const SizedBox(height: 40),
 
@@ -172,13 +193,15 @@
                   ),
                   const SizedBox(height: 20),
 
-                  ElevatedButton(
-                    onPressed: _joinRoom,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text('UNIRSE A LA SALA', style: TextStyle(fontSize: 18)),
-                  ),
+                  _isLoading
+                      ? const SizedBox.shrink() // Ocultar el segundo botón si está cargando
+                      : ElevatedButton(
+                          onPressed: _joinRoom,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Text('UNIRSE A LA SALA', style: TextStyle(fontSize: 18)),
+                        ),
                 ],
               ),
             ),

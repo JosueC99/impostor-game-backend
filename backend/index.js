@@ -113,11 +113,44 @@ io.on('connection', (socket) => {
 
   socket.on('playAgain', (roomCode) => {
     const room = rooms[roomCode];
-    // Solo el anfitrión (el primer jugador) puede reiniciar el juego
-    if (room && room.players[0].id === socket.id) {
-      console.log(`🔄 El anfitrión ha solicitado jugar de nuevo en la sala ${roomCode}.`);
-      // Reutilizamos la lógica de 'startGame' para reiniciar la partida
-      io.to(roomCode).emit('restartGame'); // Notificamos a los clientes para que vuelvan al lobby
+    if (!room) {
+      console.log(`⚠️  ${socket.id} intentó reiniciar una sala inexistente: ${roomCode}`);
+      return;
+    }
+
+    // Comprobación robusta del anfitrión
+    const isHost = room.players.length > 0 && room.players[0].id === socket.id;
+
+    if (isHost) {
+      console.log(`✅ El anfitrión ${socket.id} está reiniciando la sala ${roomCode}.`);
+
+      // Reasignar roles y reiniciar el juego para todos en la sala.
+      // Esta es la misma lógica que 'startGame'. Podríamos refactorizarla en una función.
+      const players = room.players;
+      const playerCount = players.length;
+      let impostorCount = 1;
+      if (playerCount >= 5) {
+        impostorCount = 2;
+      }
+
+      const shuffledPlayers = [...players].sort(() => 0.5 - Math.random());
+      const assignedSoccerPlayer = soccerPlayers[Math.floor(Math.random() * soccerPlayers.length)];
+
+      for (let i = 0; i < playerCount; i++) {
+        const player = shuffledPlayers[i];
+        let assignedRole;
+        if (i < impostorCount) {
+          assignedRole = { "name": "IMPOSTOR" };
+        } else {
+          assignedRole = assignedSoccerPlayer;
+        }
+        io.to(player.id).emit('gameStarted', { role: assignedRole });
+      }
+
+      console.log(`🚀 ¡Nueva ronda iniciada en la sala ${roomCode}!`);
+
+    } else {
+      console.log(`⚠️  ${socket.id} (no anfitrión) intentó reiniciar la sala ${roomCode}.`);
     }
   });
   

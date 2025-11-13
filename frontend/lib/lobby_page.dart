@@ -41,7 +41,10 @@ class _LobbyPageState extends State<LobbyPage> {
     widget.socket.on('gameStarted', (data) {
       if (mounted) {
         final bool isHost = players.isNotEmpty && players[0]['id'] == widget.socket.id;
-        Navigator.push(
+
+        // Usamos pushReplacement para reemplazar la pantalla actual (Lobby o RoleReveal anterior)
+        // por la nueva pantalla de revelación de rol.
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => RoleRevealPage(
@@ -52,14 +55,6 @@ class _LobbyPageState extends State<LobbyPage> {
             ),
           ),
         );
-      }
-    });
-
-    // Listener para reiniciar el juego
-    widget.socket.on('restartGame', (_) {
-      if (mounted) {
-        // Hacemos pop para volver de RoleRevealPage al LobbyPage
-        Navigator.pop(context);
       }
     });
   }
