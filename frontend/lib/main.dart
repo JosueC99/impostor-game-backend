@@ -62,6 +62,7 @@
           Navigator.push(
             context,
             MaterialPageRoute(
+              settings: const RouteSettings(name: '/lobby'),
               builder: (context) => LobbyPage(
                 roomCode: roomCode,
                 socket: _socket,
@@ -86,6 +87,7 @@
           Navigator.push(
             context,
             MaterialPageRoute(
+              settings: const RouteSettings(name: '/lobby'),
               builder: (context) => LobbyPage(
                 roomCode: roomCode,
                 socket: _socket,
@@ -121,6 +123,7 @@
           Navigator.push(
             context,
             MaterialPageRoute(
+              settings: const RouteSettings(name: '/lobby'),
               builder: (context) => LobbyPage(
                 roomCode: data['roomCode'],
                 socket: _socket,

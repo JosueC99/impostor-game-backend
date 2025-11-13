@@ -82,7 +82,8 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                 onPressed: () {
                   // Notificamos al servidor que ya no estamos listos
                   widget.socket.emit('playerUnready', widget.roomCode);
-                  Navigator.of(context).pop();
+                  // Usamos popUntil para volver a la pantalla del Lobby
+                  Navigator.of(context).popUntil((route) => route.settings.name == '/lobby');
                 },
                 child: const Text('Regresar al Lobby'),
               ),
@@ -161,7 +162,8 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                 onPressed: () {
                   // Notificamos al servidor que ya no estamos listos
                   widget.socket.emit('playerUnready', widget.roomCode);
-                  Navigator.of(context).pop();
+                  // Usamos popUntil para volver a la pantalla del Lobby
+                  Navigator.of(context).popUntil((route) => route.settings.name == '/lobby');
                 },
                 child: const Text('Regresar al Lobby'),
               ),

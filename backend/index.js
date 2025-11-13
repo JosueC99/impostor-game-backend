@@ -226,21 +226,25 @@ io.on('connection', (socket) => {
   // Lógica de disconnect (sin cambios2)
   socket.on('disconnect', () => {
     console.log(`🔌 Jugador desconectado: ${socket.id}`);
-    let roomCodeToUpdate = null;
     for (const roomCode in rooms) {
       const room = rooms[roomCode];
       const playerIndex = room.players.findIndex(player => player.id === socket.id);
+
       if (playerIndex !== -1) {
-        room.players.splice(playerIndex, 1);
-        roomCodeToUpdate = roomCode;
+        // Si el anfitrión se desconecta, disolvemos la sala
+        if (playerIndex === 0) {
+          console.log(`- El anfitrión ${socket.id} se ha desconectado de la sala ${roomCode}. Disolviendo...`);
+          socket.to(roomCode).emit('roomDisbanded');
+          delete rooms[roomCode];
+          console.log(`🗑️ Sala ${roomCode} eliminada.`);
+        } else {
+          // Si es otro jugador, simplemente lo eliminamos
+          room.players.splice(playerIndex, 1);
+          console.log(`👋 Jugador ${socket.id} abandonó la sala ${roomCode} por desconexión.`);
+          io.to(roomCode).emit('updatePlayers', room.players);
+        }
+        // Salimos del bucle una vez que encontramos y manejamos al jugador
         break;
-      }
-    }
-    if (roomCodeToUpdate) {
-      if (rooms[roomCodeToUpdate].players.length === 0) {
-        delete rooms[roomCodeToUpdate];
-      } else {
-        io.to(roomCodeToUpdate).emit('updatePlayers', rooms[roomCodeToUpdate].players);
       }
     }
   });
