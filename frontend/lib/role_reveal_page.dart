@@ -111,11 +111,17 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
               SizedBox(height: 40),
               
               Center(
-                child: CountryFlag.fromCountryCode(
-                  playerCountryCode,
-                  height: 80,
-                  width: 120,
-                  borderRadius: 12,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    color: Colors.blue[900], // Azul oscuro
+                    padding: const EdgeInsets.all(8), // Un poco de espacio
+                    child: CountryFlag.fromCountryCode(
+                      playerCountryCode,
+                      height: 80,
+                      width: 120,
+                    ),
+                  ),
                 ),
               ),
               SizedBox(height: 20),

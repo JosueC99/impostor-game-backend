@@ -207,6 +207,14 @@ class _LobbyPageState extends State<LobbyPage> {
                   ),
                 ],
               ),
+            if (!isHost)
+              TextButton(
+                onPressed: () {
+                  widget.socket.emit('leaveRoom', widget.roomCode);
+                  Navigator.pop(context); // El jugador vuelve al menú principal
+                },
+                child: const Text('Salir de la Sala', style: TextStyle(color: Colors.redAccent)),
+              ),
           ],
         ),
       ),
