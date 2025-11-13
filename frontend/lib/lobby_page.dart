@@ -21,6 +21,7 @@ class LobbyPage extends StatefulWidget {
 class _LobbyPageState extends State<LobbyPage> {
   // La lista de jugadores se guardará aquí y se actualizará en tiempo real
   late List<dynamic> players;
+  bool _gameStarted = false;
 
   @override
   void initState() {
@@ -42,19 +43,23 @@ class _LobbyPageState extends State<LobbyPage> {
       if (mounted) {
         final bool isHost = players.isNotEmpty && players[0]['id'] == widget.socket.id;
 
-        // Usamos pushReplacement para reemplazar la pantalla actual (Lobby o RoleReveal anterior)
-        // por la nueva pantalla de revelación de rol.
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RoleRevealPage(
-              role: data['role'],
-              socket: widget.socket,
-              isHost: isHost,
-              roomCode: widget.roomCode,
-            ),
+        final pageRoute = MaterialPageRoute(
+          builder: (context) => RoleRevealPage(
+            role: data['role'],
+            socket: widget.socket,
+            isHost: isHost,
+            roomCode: widget.roomCode,
           ),
         );
+
+        if (_gameStarted) {
+          // Si el juego ya empezó, reemplazamos la pantalla de rol anterior
+          Navigator.pushReplacement(context, pageRoute);
+        } else {
+          // Si es la primera vez, hacemos push y marcamos que el juego ha empezado
+          setState(() => _gameStarted = true);
+          Navigator.push(context, pageRoute);
+        }
       }
     });
   }

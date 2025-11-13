@@ -68,7 +68,7 @@
                 initialPlayers: [ {'id': _socket.id, 'name': _nameController.text} ],
               ),
             ),
-          );
+          ).then((_) => setState(() => _isLoading = false)); // Se ejecuta cuando vuelves
         }
       });
 
@@ -87,7 +87,7 @@
                 initialPlayers: players,
               ),
             ),
-          );
+          ).then((_) => setState(() => _isLoading = false)); // Se ejecuta cuando vuelves
         }
       });
 
@@ -117,7 +117,7 @@
                 initialPlayers: data['players'],
               ),
             ),
-          );
+          ).then((_) => setState(() => _isLoading = false)); // Se ejecuta cuando vueles
         }
       });
     }
