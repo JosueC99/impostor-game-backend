@@ -35,6 +35,14 @@ io.on('connection', (socket) => {
   console.log(`🔌 Nuevo jugador conectado: ${socket.id}`);
 
   socket.on('createRoom', (playerName) => {
+    // Evitar que un jugador en una sala cree otra
+    for (const roomCode in rooms) {
+      if (rooms[roomCode].players.some(player => player.id === socket.id)) {
+        socket.emit('error', 'Ya estás en una sala, no puedes crear otra.');
+        return;
+      }
+    }
+
     const roomCode = generateRoomCode();
     socket.join(roomCode);
     rooms[roomCode] = { players: [{ id: socket.id, name: playerName }] };
