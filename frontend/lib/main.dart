@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Impostor Game',
+      title: 'Falso 9',
       theme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.blue,
