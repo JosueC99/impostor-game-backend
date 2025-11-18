@@ -46,10 +46,10 @@ class _HomePageState extends State<HomePage> {
 
   void _connectToServer() {
     // IMPORTANTE: Usa 10.0.2.2 para el emulador de Android
-    _socket = IO.io('http://localhost:3000', <String, dynamic>{
-      'transports': ['websocket'],
-      'autoConnect': false,
-    });
+    _socket = IO.io('https://impostor-game-definitivo.onrender.com', <String, dynamic>{
+            'transports': ['websocket'],
+            'autoConnect': false,
+          });
 
     _socket.connect();
 
