@@ -59,7 +59,12 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
               ),
               SizedBox(height: 80),
               if (_isWaiting)
-                const Text('Esperando al anfitrión...', style: TextStyle(color: Colors.white, fontSize: 18)),
+                const Center( // <-- 1. Añades el widget Center
+                  child: Text( // <-- 2. El Text ahora es el 'hijo'
+                    'Esperando al anfitrión...',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ),
               if (!_isWaiting)
                 ElevatedButton(
                   onPressed: () {
