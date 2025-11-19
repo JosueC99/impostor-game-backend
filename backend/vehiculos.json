@@ -1,0 +1,12 @@
+[
+  {"name": "Coche"},
+  {"name": "Bicicleta"},
+  {"name": "Motocicleta"},
+  {"name": "Autobús"},
+  {"name": "Tren"},
+  {"name": "Avión"},
+  {"name": "Barco"},
+  {"name": "Helicóptero"},
+  {"name": "Camión"},
+  {"name": "Patinete"}
+]

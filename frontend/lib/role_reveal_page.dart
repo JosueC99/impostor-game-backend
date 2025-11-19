@@ -4,6 +4,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class RoleRevealPage extends StatefulWidget {
   final Map<String, dynamic> role;
+  final String category;
   final IO.Socket socket;
   final bool isHost;
   final String roomCode;
@@ -11,6 +12,7 @@ class RoleRevealPage extends StatefulWidget {
   const RoleRevealPage({
     Key? key,
     required this.role,
+    required this.category,
     required this.socket,
     required this.isHost,
     required this.roomCode,
@@ -23,15 +25,29 @@ class RoleRevealPage extends StatefulWidget {
 class _RoleRevealPageState extends State<RoleRevealPage> {
   bool _isWaiting = false;
 
+  // Mapa de íconos para cada categoría
+  final Map<String, IconData> _categoryIcons = {
+    'Cosas cotidianas': Icons.lightbulb_outline,
+    'Videojuegos': Icons.gamepad_outlined,
+    'Deportes': Icons.sports_soccer_outlined,
+    'Vehículos': Icons.directions_car_outlined,
+    'Películas y Series': Icons.movie_outlined,
+    'Personajes Históricos y de Ciencia': Icons.science_outlined,
+  };
+
   @override
   Widget build(BuildContext context) {
-    // La comprobación vuelve a ser simple y directa
     final bool isImpostor = widget.role['name'] == 'IMPOSTOR';
 
     if (isImpostor) {
       return buildImpostorView(context);
     } else {
-      return buildPlayerView(context);
+      // Decidimos qué vista construir en función de la categoría
+      if (widget.category == 'Jugadores de Fútbol') {
+        return buildPlayerView(context);
+      } else {
+        return buildItemView(context);
+      }
     }
   }
 
@@ -124,8 +140,8 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    color: const Color(0xFF28252B), // Color exacto solicitado
-                    padding: const EdgeInsets.all(8), // Un poco de espacio
+                    color: const Color(0xFF28252B),
+                    padding: const EdgeInsets.all(8),
                     child: CountryFlag.fromCountryCode(
                       playerCountryCode,
                       height: 80,
@@ -143,39 +159,87 @@ class _RoleRevealPageState extends State<RoleRevealPage> {
               ),
               SizedBox(height: 80),
 
-              if (_isWaiting)
-                const Text('Esperando al anfitrión...', style: TextStyle(color: Colors.white, fontSize: 18)),
-              if (!_isWaiting)
-                ElevatedButton(
-                  onPressed: () {
-                    if (widget.isHost) {
-                      print('>>> BOTÓN ANFITRIÓN: Enviando evento "playAgain" para la sala ${widget.roomCode}');
-                      widget.socket.emit('playAgain', widget.roomCode);
-                    } else {
-                      // El no anfitrión ahora emite 'playerReady'
-                      widget.socket.emit('playerReady', widget.roomCode);
-                      setState(() {
-                        _isWaiting = true;
-                      });
-                    }
-                  },
-                  child: const Text('JUGAR DE NUEVO'),
-                  style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 20)),
-                ),
+              _buildPlayAgainButton(),
               const SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  // Notificamos al servidor que ya no estamos listos
-                  widget.socket.emit('playerUnready', widget.roomCode);
-                  // Usamos popUntil para volver a la pantalla del Lobby
-                  Navigator.of(context).popUntil((route) => route.settings.name == '/lobby');
-                },
-                child: const Text('Regresar al Lobby'),
-              ),
+              _buildReturnToLobbyButton(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // Nuevo Widget para la vista de Ítem con Ícono genérico
+  Widget buildItemView(BuildContext context) {
+    final String itemName = widget.role['name'] ?? 'N/A';
+    final IconData icon = _categoryIcons[widget.category] ?? Icons.help_outline;
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'TU PALABRA ES',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 30, color: Colors.white70, fontWeight: FontWeight.w300),
+              ),
+              SizedBox(height: 40),
+
+              Icon(icon, size: 100, color: Colors.white),
+
+              SizedBox(height: 20),
+
+              Text(
+                itemName,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 50, color: Colors.greenAccent, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 80),
+
+              _buildPlayAgainButton(),
+              const SizedBox(height: 20),
+              _buildReturnToLobbyButton(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Botón "Jugar de Nuevo" refactorizado
+  Widget _buildPlayAgainButton() {
+    if (_isWaiting) {
+      return const Text('Esperando al anfitrión...', style: TextStyle(color: Colors.white, fontSize: 18), textAlign: TextAlign.center);
+    }
+    return ElevatedButton(
+      onPressed: () {
+        if (widget.isHost) {
+          widget.socket.emit('playAgain', widget.roomCode);
+        } else {
+          widget.socket.emit('playerReady', widget.roomCode);
+          setState(() {
+            _isWaiting = true;
+          });
+        }
+      },
+      child: const Text('JUGAR DE NUEVO'),
+      style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 20)),
+    );
+  }
+
+  // Botón "Regresar al Lobby" refactorizado
+  Widget _buildReturnToLobbyButton() {
+    return TextButton(
+      onPressed: () {
+        widget.socket.emit('playerUnready', widget.roomCode);
+        Navigator.of(context).popUntil((route) => route.settings.name == '/lobby');
+      },
+      child: const Text('Regresar al Lobby'),
     );
   }
 }

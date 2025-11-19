@@ -20,6 +20,19 @@ const playersData = fs.readFileSync('players.json');
 const soccerPlayers = JSON.parse(playersData);
 console.log(`✅ ${soccerPlayers.length} futbolistas cargados.`);
 
+// Cargar todas las categorías
+const categories = {
+  'Jugadores de Fútbol': soccerPlayers,
+  'Cosas cotidianas': JSON.parse(fs.readFileSync('cosas_cotidianas.json')),
+  'Videojuegos': JSON.parse(fs.readFileSync('videojuegos.json')),
+  'Deportes': JSON.parse(fs.readFileSync('deportes.json')),
+  'Vehículos': JSON.parse(fs.readFileSync('vehiculos.json')),
+  'Películas y Series': JSON.parse(fs.readFileSync('peliculas_y_series.json')),
+  'Personajes Históricos y de Ciencia': JSON.parse(fs.readFileSync('personajes.json')),
+};
+console.log(`✅ ${Object.keys(categories).length} categorías cargadas.`);
+
+
 let rooms = {};
 
 const generateRoomCode = () => {
@@ -45,10 +58,15 @@ io.on('connection', (socket) => {
 
     const roomCode = generateRoomCode();
     socket.join(roomCode);
-    // Añadimos el estado 'isReady' al crear la sala
-    rooms[roomCode] = { players: [{ id: socket.id, name: playerName, isReady: false }] };
+    // Añadimos el estado 'isReady' y la categoría por defecto al crear la sala
+    rooms[roomCode] = {
+      players: [{ id: socket.id, name: playerName, isReady: false }],
+      category: 'Jugadores de Fútbol' // Categoría por defecto
+    };
     console.log(`✅ Sala creada: ${roomCode} por ${playerName}`);
     socket.emit('roomCreated', roomCode);
+    // Enviamos la categoría inicial al creador
+    socket.emit('categoryUpdated', rooms[roomCode].category);
   });
 
   socket.on('joinRoom', ({ playerName, roomCode }) => {
@@ -56,15 +74,17 @@ io.on('connection', (socket) => {
     if (rooms[upperCaseRoomCode]) {
       const playerExists = rooms[upperCaseRoomCode].players.some(player => player.id === socket.id);
       if (!playerExists) {
-        // Añadimos el estado 'isReady' al unirse
         rooms[upperCaseRoomCode].players.push({ id: socket.id, name: playerName, isReady: false });
         socket.join(upperCaseRoomCode);
         console.log(`👍 ${playerName} se unió a la sala ${upperCaseRoomCode}`);
         socket.emit('joinSuccess', { roomCode: upperCaseRoomCode, players: rooms[upperCaseRoomCode].players });
+
+        // Notificar al nuevo jugador de la categoría actual
+        socket.emit('categoryUpdated', rooms[upperCaseRoomCode].category);
+
         socket.to(upperCaseRoomCode).emit('updatePlayers', rooms[upperCaseRoomCode].players);
       } else {
         console.log(`🤔 ${playerName} ya está en la sala ${upperCaseRoomCode}`);
-        // Opcional: podrías emitir un evento para notificar al cliente que ya está unido
         socket.emit('alreadyJoined', { roomCode: upperCaseRoomCode, players: rooms[upperCaseRoomCode].players });
       }
     } else {
@@ -72,45 +92,64 @@ io.on('connection', (socket) => {
     }
   });
 
-  // ===== LÓGICA DE 'STARTGAME' COMPLETAMENTE CORREGIDA =====
-  socket.on('startGame', (roomCode) => {
+  // Evento para que el anfitrión seleccione una categoría
+  socket.on('selectCategory', ({ roomCode, category }) => {
     const room = rooms[roomCode];
-    if (!room || room.players[0].id !== socket.id) return;
+    // Solo el anfitrión puede cambiar la categoría
+    if (room && room.players.length > 0 && room.players[0].id === socket.id) {
+      if (categories[category]) {
+        room.category = category;
+        console.log(`- El anfitrión ${socket.id} cambió la categoría de la sala ${roomCode} a ${category}`);
+        // Notificamos a todos en la sala sobre el cambio
+        io.to(roomCode).emit('categoryUpdated', category);
+      } else {
+        socket.emit('error', 'Categoría no válida');
+      }
+    }
+  });
+
+  const startNewRound = (roomCode) => {
+    const room = rooms[roomCode];
+    if (!room) return;
 
     const players = room.players;
     const playerCount = players.length;
     let impostorCount = 1;
 
-    // 1. REGLA DE IMPOSTORES CORREGIDA
-    // Si hay 5 o más jugadores, son 2 impostores. Si no, es 1.
-    if (playerCount >= 5) {
+    // REGLA: 1 impostor hasta 5 jugadores, 2 para 6 o más.
+    if (playerCount >= 6) {
       impostorCount = 2;
     }
 
-    // 2. MEJOR MÉTODO PARA BARAJAR JUGADORES (MÁS ALEATORIO)
     const shuffledPlayers = [...players].sort(() => 0.5 - Math.random());
     
-    // 3. ELEGIMOS UN SOLO FUTBOLISTA PARA TODOS LOS TRIPULANTES
-    const assignedSoccerPlayer = soccerPlayers[Math.floor(Math.random() * soccerPlayers.length)];
+    // Seleccionar item de la categoría correcta
+    const currentCategory = room.category || 'Jugadores de Fútbol';
+    const items = categories[currentCategory];
+    const assignedItem = items[Math.floor(Math.random() * items.length)];
 
-    // 4. ASIGNAMOS ROLES SEGÚN LAS NUEVAS REGLAS
     for (let i = 0; i < playerCount; i++) {
       const player = shuffledPlayers[i];
       let assignedRole;
 
       if (i < impostorCount) {
-        // Para ser consistentes, el impostor también es un objeto
         assignedRole = { "name": "IMPOSTOR" };
       } else {
-        // Todos los demás reciben el MISMO futbolista
-        assignedRole = assignedSoccerPlayer;
+        assignedRole = assignedItem;
       }
       
-      // Enviamos el rol de forma privada a cada jugador
-      io.to(player.id).emit('gameStarted', { role: assignedRole });
+      // Enviamos el rol y la categoría a cada jugador
+      io.to(player.id).emit('gameStarted', { role: assignedRole, category: currentCategory });
     }
 
-    console.log(`🚀 ¡Juego iniciado en la sala ${roomCode}! Roles asignados.`);
+    console.log(`🚀 ¡Juego iniciado en la sala ${roomCode} con categoría "${currentCategory}"!`);
+  };
+
+  socket.on('startGame', (roomCode) => {
+    const room = rooms[roomCode];
+    if (room && room.players.length > 0 && room.players[0].id === socket.id) {
+      startNewRound(roomCode);
+    }
   });
 
   socket.on('playAgain', (roomCode) => {
@@ -120,11 +159,9 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // Comprobación robusta del anfitrión
     const isHost = room.players.length > 0 && room.players[0].id === socket.id;
 
     if (isHost) {
-      // CORRECCIÓN: La comprobación debe ir aquí dentro
       const allReady = room.players.every(p => p.id === socket.id || p.isReady);
       if (!allReady) {
         socket.emit('error', 'No todos los jugadores están listos.');
@@ -133,30 +170,8 @@ io.on('connection', (socket) => {
 
       console.log(`✅ El anfitrión ${socket.id} está reiniciando la sala ${roomCode}.`);
 
-      // Reasignar roles y reiniciar el juego para todos en la sala.
-      // Esta es la misma lógica que 'startGame'. Podríamos refactorizarla en una función.
-      const players = room.players;
-      const playerCount = players.length;
-      let impostorCount = 1;
-      if (playerCount >= 5) {
-        impostorCount = 2;
-      }
-
-      const shuffledPlayers = [...players].sort(() => 0.5 - Math.random());
-      const assignedSoccerPlayer = soccerPlayers[Math.floor(Math.random() * soccerPlayers.length)];
-
-      for (let i = 0; i < playerCount; i++) {
-        const player = shuffledPlayers[i];
-        let assignedRole;
-        if (i < impostorCount) {
-          assignedRole = { "name": "IMPOSTOR" };
-        } else {
-          assignedRole = assignedSoccerPlayer;
-        }
-        io.to(player.id).emit('gameStarted', { role: assignedRole });
-      }
-
-      console.log(`🚀 ¡Nueva ronda iniciada en la sala ${roomCode}!`);
+      // Usamos la función refactorizada
+      startNewRound(roomCode);
 
       // Reiniciamos el estado 'isReady' de todos los jugadores para la siguiente ronda
       room.players.forEach(p => p.isReady = false);
